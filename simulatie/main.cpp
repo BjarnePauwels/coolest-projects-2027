@@ -9,12 +9,6 @@
 typedef struct Vector2int {
     int x;                // Vector x component
     int y;                // Vector y component
-    static Vector2int cVtVI(Vector2 converting) {
-        return Vector2int(static_cast<int>(converting.x),static_cast<int>(converting.y));
-    }
-    static Vector2 cVItV(Vector2int converting) {
-        return Vector2(static_cast<float>(converting.x),static_cast<float>(converting.y));
-    }
 } Vector2int;
 
 class Constants {
@@ -29,6 +23,13 @@ public:
     bool show_s_app = false;
     bool show_m_app = false;
     bool show_d_app = false;
+
+    static Vector2int cVtVI(Vector2 converting) {
+        return Vector2int(static_cast<int>(converting.x),static_cast<int>(converting.y));
+    }
+    static Vector2 cVItV(Vector2int converting) {
+        return Vector2(static_cast<float>(converting.x),static_cast<float>(converting.y));
+    }
 };
 Constants constants;
 
@@ -53,17 +54,20 @@ public:
     void update() {
         if (!open) return;
         BeginTextureMode(ViewTexture);
-        ClearBackground(SKYBLUE);
+        ClearBackground(BLACK);
 
         DrawCircle(constants.screensize.x/2, constants.screensize.y/2, 50, YELLOW);
 
         EndTextureMode();
     }
     void draw() {
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+        ImGui::SetNextWindowSizeConstraints(ImVec2(400.0f, 400.0f), ImVec2(constants.screensize.x, constants.screensize.y));
         if (ImGui::Begin("simulation.app", &open, ImGuiWindowFlags_NoScrollbar)) {
             rlImGuiImageRenderTextureFit(&ViewTexture, true);
         }
         ImGui::End();
+        ImGui::PopStyleVar();
     }
     void deinit() {
         UnloadRenderTexture(ViewTexture);
@@ -135,9 +139,9 @@ private:
             }
 
             if (ImGui::BeginMenu("Window")) {
-                if (ImGui::MenuItem("simulation.app")) constants.show_s_app = true;
-                if (ImGui::MenuItem("moonphase.app")) constants.show_m_app = true;
-                if (ImGui::MenuItem("data.app")) constants.show_d_app = true;
+                if (ImGui::MenuItem("simulation.app")) constants.show_s_app = !constants.show_s_app;
+                if (ImGui::MenuItem("moonphase.app")) constants.show_m_app = !constants.show_m_app;
+                if (ImGui::MenuItem("data.app")) constants.show_d_app = !constants.show_d_app;
 
                 ImGui::EndMenu();
             }
@@ -154,8 +158,6 @@ public:
     }
     void draw() {
         rlImGuiBegin();
-
-        ImGui::ShowDemoWindow();
 
         main_menu();
 
