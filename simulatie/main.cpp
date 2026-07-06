@@ -56,7 +56,16 @@ public:
         BeginTextureMode(ViewTexture);
         ClearBackground(BLACK);
 
-        DrawCircle(constants.screensize.x/2, constants.screensize.y/2, 50, YELLOW);
+        DrawCircle(constants.screensize.x/2, constants.screensize.y/2, 30, YELLOW);
+        DrawText("sun" ,constants.screensize.x/2 + 33, constants.screensize.y/2+33, 33, YELLOW);
+
+        DrawCircleLines(constants.screensize.x/2, constants.screensize.y/2, 300, WHITE);
+        DrawCircle(constants.screensize.x/2 + 300, constants.screensize.y/2, 10, BLUE);
+        DrawText("earth" ,constants.screensize.x/2 + 300 - 43, constants.screensize.y/2+13, 25, BLUE);
+
+        DrawCircleLines(constants.screensize.x/2 + 300, constants.screensize.y/2, 40, WHITE);
+        DrawCircle(constants.screensize.x/2 + 300 +(40*cos(70)), constants.screensize.y/2 - (40*sin(70)), 5, RAYWHITE);
+        DrawText("moon" ,constants.screensize.x/2 + 300 +(40*cos(70)) + 10, constants.screensize.y/2 - (40*sin(70)) - 10, 20, RAYWHITE);
 
         EndTextureMode();
     }
