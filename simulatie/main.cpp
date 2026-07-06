@@ -14,13 +14,21 @@ typedef struct Vector2int {
     }
 } Vector2int;
 
-class constants {
-    public:
+class Constants {
+public:
+    Vector2int screensize = Vector2int(640,480);
+    const char *windowname = "simulation";
 
+    float FPS = 60;
+    bool quit_sim = false;
+    Color bg_color = BLACK;
 };
+Constants constants;
 
 
-class interface {
+//...
+
+class Interface {
 private:
 
 public:
@@ -38,30 +46,62 @@ public:
     }
 };
 
-interface imgui;
+Interface imgui;
 
-class simulation {
+class Simulation {
+private:
+    static void drawFPS() {
+        const char* fps = TextFormat("fps: %i", GetFPS());
+        DrawText(fps, 10, 10, 15, WHITE);
+    }
+    static void checkDeinit() {
+        if (WindowShouldClose()) constants.quit_sim = true;
+    }
+    static void clearScreen() {
+        ClearBackground(constants.bg_color);
+    }
 public:
 
-    void init() {
+    static void init() {
+        InitWindow(constants.screensize.x,constants.screensize.y, constants.windowname);
 
+        SetTargetFPS(constants.FPS);
 
         imgui.init();
     }
-    void update() {
+    static void update() {
+        checkDeinit();
+
         imgui.update();
 
     }
-    void draw() {
+    static void draw() {
+        BeginDrawing();
+
+        clearScreen();
+        drawFPS();
+
         imgui.draw();
 
+        EndDrawing();
     }
-    void deinit() {
+    static int deinit() {
         imgui.deinit();
 
+        CloseWindow();
+        return 0;
     }
 };
 
 int main()
 {
+    Simulation::init();
+
+    while (!constants.quit_sim) {
+        Simulation::update();
+
+        Simulation::draw();
+    }
+
+    Simulation::deinit();
 }
