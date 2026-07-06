@@ -16,7 +16,7 @@ typedef struct Vector2int {
 
 class Constants {
 public:
-    Vector2int screensize = Vector2int(640,480);
+    Vector2int screensize = Vector2int(1280,720);
     const char *windowname = "simulation";
 
     float FPS = 60;
@@ -33,16 +33,20 @@ private:
 
 public:
     void init() {
-
+        rlImGuiSetup(true);
     }
     void update() {
 
     }
     void draw() {
+        rlImGuiBegin();
 
+        ImGui::ShowDemoWindow();
+
+        rlImGuiEnd();
     }
     void deinit() {
-
+        rlImGuiShutdown();
     }
 };
 
@@ -73,7 +77,6 @@ public:
         checkDeinit();
 
         imgui.update();
-
     }
     static void draw() {
         BeginDrawing();
