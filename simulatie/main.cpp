@@ -1,18 +1,67 @@
 #include <iostream>
+#include "raylib/raylib.h"
+#include "imgui/headers/imgui.h"
+#include "imgui/headers/rlImGui.h"
 
-// TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-
-int main() {
-    // TIP Press <shortcut actionId="RenameElement"/> when your caret is at the <b>lang</b> variable name to see how CLion can help you rename it.
-
-    const auto lang = "C++";
-    std::cout << "Hello and welcome to " << lang << "!\n";
-
-    for (int i = 1; i <= 5; i++) {
-        // TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-        std::cout << "i = " << i << std::endl;
+typedef struct Vector2int {
+    int x;                // Vector x component
+    int y;                // Vector y component
+    static Vector2int cVtVI(Vector2 converting) {
+        return Vector2int(static_cast<int>(converting.x),static_cast<int>(converting.y));
     }
+    static Vector2 cVItV(Vector2int converting) {
+        return Vector2(static_cast<float>(converting.x),static_cast<float>(converting.y));
+    }
+} Vector2int;
 
-    return 0;
-    // TIP See CLion help at <a href="https://www.jetbrains.com/help/clion/">jetbrains.com/help/clion/</a>. Also, you can try interactive lessons for CLion by selecting 'Help | Learn IDE Features' from the main menu.
+class constants {
+    public:
+
+};
+
+
+class interface {
+private:
+
+public:
+    void init() {
+
+    }
+    void update() {
+
+    }
+    void draw() {
+
+    }
+    void deinit() {
+
+    }
+};
+
+interface imgui;
+
+class simulation {
+public:
+
+    void init() {
+
+
+        imgui.init();
+    }
+    void update() {
+        imgui.update();
+
+    }
+    void draw() {
+        imgui.draw();
+
+    }
+    void deinit() {
+        imgui.deinit();
+
+    }
+};
+
+int main()
+{
 }
