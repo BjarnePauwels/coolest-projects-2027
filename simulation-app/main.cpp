@@ -1,10 +1,32 @@
 #include <iostream>
 #include "Include/raylib/raylib.h"
+#include "Include/raylib/raymath.h"
 #include "imgui/headers/imgui.h"
 #include "imgui/headers/rlImGui.h"
 
 auto screensize = Vector2(1280, 720);
 auto center = Vector2(screensize.x/2, screensize.y/2);
+
+float calculate_a(const float c, const float e) {
+    const float a = c/e;
+    return a;
+}
+float calculate_b(const float a, const float c) {
+    const double b = sqrt(pow(a, 2) - pow(c, 2));
+    return static_cast<float>(b);
+}
+float calculate_c(const float a, const float e, const float b = 0) {
+    double c = 0;
+    if (b == 0 && e != 0) {
+        c = e * a;
+    }
+    if (b != 0 && e == 0) {
+        c = sqrt(pow(a, 2) - pow(b, 2));
+    }
+    return static_cast<float>(c);
+}
+
+
 class sun {
 public:
     double mass = 1.9f * pow(10,30); // kg
@@ -45,6 +67,15 @@ double r_em = 384400; // distance between earth and moon
 float semi_mayor_axis = screensize.x/3;
 float semi_minor_axis = screensize.y/3;
 
+float a = semi_mayor_axis, b = semi_minor_axis, c, e; // semi-mayor-axis, semi-minor-axis, distance focalpoint & center, eccentricity
+float a_max = screensize.x/2;
+float b_max = screensize.y/2;
+
+void update_axis(const float _a, const float _b) {
+    semi_mayor_axis = _a;
+    semi_minor_axis = _b;
+}
+
 int main() {
     InitWindow(1280, 720, "simulation.app");
     SetTargetFPS(60);
@@ -55,13 +86,18 @@ int main() {
         BeginDrawing();
         ClearBackground(BLACK);
 
-        
-
-
         float V = semi_minor_axis;
         float H = semi_mayor_axis;
 
         DrawEllipseLines(static_cast<int>(center.x), static_cast<int>(center.y), H, V, RAYWHITE);
+
+        float _c = calculate_c(a, 0.0f, b);
+        const auto focalPoint1Pos = Vector2(center.x + _c, center.y);
+        DrawCircleV(focalPoint1Pos, 2, RAYWHITE);
+        const auto focalPoint2Pos = Vector2(center.x - _c, center.y);
+        DrawCircleV(focalPoint2Pos, 2, RAYWHITE);
+
+        
 
         //Earth.draw();
         //Sun.draw();
@@ -69,16 +105,57 @@ int main() {
 
         //imgui
         rlImGuiBegin();
-
-        if (ImGui::Begin("orbit")) {
+        if (ImGui::Begin("orbit", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
             ImGui::Text("ellipse");
-            ImGui::SliderFloat("a", &semi_mayor_axis, 0.0f, screensize.x/2);
-            ImGui::SliderFloat("b", &semi_minor_axis, 0.0f, screensize.y/2);
-        }ImGui::End();
 
-        rlImGuiEnd();
+            static const char* items[]{"a & b","a & c","a & e", "c & e"};
+            static int selected_item = 0;
+            if (!ImGui::Combo("specify points", &selected_item, items, IM_ARRAYSIZE(items)))
+            {
+                if (selected_item == 0) {
+                    ImGui::SliderFloat("a", &a, b, a_max);
+                    if (a < b) a = b;
+                    ImGui::SliderFloat("b", &b, 0.0f, b_max);
 
-        EndDrawing();
+                    update_axis(a,b);
+                    semi_mayor_axis = a;
+                    semi_minor_axis = b;
+                }
+                if (selected_item == 1) {
+                    ImGui::SliderFloat("a", &a, c, b_max);
+                    if (c > a) c = a;
+                    ImGui::SliderFloat("c", &c, 0.0f, a);
+
+                    b = calculate_b(a, c);
+                    update_axis(a,b);
+                }
+                if (selected_item == 2) {
+                    ImGui::SliderFloat("a", &a, 0.0f, b_max);
+                    ImGui::SliderFloat("e", &e, 0.0f, 1.0f);
+
+                    c = calculate_c(a, e);
+                    b = calculate_b(a, c);
+                    update_axis(a,b);
+                }
+                if (selected_item == 3) {
+                    ImGui::SliderFloat("c", &c, 0.0f, static_cast<float>(sqrt(pow(a_max, 2) - pow(b_max, 2))));
+                    ImGui::SliderFloat("e", &e, c/a_max, 1.0f);
+                    if (e < c/a_max) e = c/a_max;
+
+                    a = calculate_a(c, e);
+                    b = calculate_b(a, c);
+                    update_axis(a,b);
+                }
+            }
+            ImGui::End();
+
+            ImGui::Render();
+            ImGui::EndFrame();
+
+            rlImGuiEnd();
+
+            EndDrawing();
+        }
     }
     rlImGuiShutdown();
 
