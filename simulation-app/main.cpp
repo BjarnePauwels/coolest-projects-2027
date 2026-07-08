@@ -71,6 +71,9 @@ float a = semi_mayor_axis, b = semi_minor_axis, c, e; // semi-mayor-axis, semi-m
 float a_max = screensize.x/2;
 float b_max = screensize.y/2;
 
+bool show_explanation = false;
+bool visualize_2 = false;
+
 void update_axis(const float _a, const float _b) {
     semi_mayor_axis = _a;
     semi_minor_axis = _b;
@@ -106,6 +109,11 @@ int main() {
 
         DrawLineV(center, Vector2(center.x, center.y - b), GRAY);
         DrawText("b", static_cast<int>(center.x - 8), static_cast<int>(center.y - b/2), 5, GRAY);
+
+        //visualization of kepler's 2nd law
+        if (visualize_2) {
+            
+        }
 
         //Earth.draw();
         //Sun.draw();
@@ -159,13 +167,32 @@ int main() {
         }
         ImGui::End();
 
+        if (ImGui::Begin("Kepler's laws", nullptr)) {
+            ImGui::Text("Kepler's laws of planetary motion");
+            ImGui::Checkbox("show explanation", &show_explanation);
+
+            ImGui::SeparatorText("1st law");
+            if (show_explanation) ImGui::Text("The orbit of a planet is an ellipse with the Sun at one of the two foci.");
+
+            ImGui::SeparatorText("2nd law");
+            if (show_explanation) ImGui::Text("A line segment joining a planet and the Sun sweeps out equal areas during equal intervals of time.");
+            ImGui::Checkbox("visualize", &visualize_2);
+
+            ImGui::SeparatorText("3rd law");
+            if (show_explanation) ImGui::Text("The square of a planet's orbital period is proportional to the cube of the length of the semi-major axis of its orbit.");
+            ImGui::Text("T² ∞ a³");
+        }
+        ImGui::End();
+
         ImGui::Render();
         ImGui::EndFrame();
 
         rlImGuiEnd();
 
         EndDrawing();
+
     }
+
     rlImGuiShutdown();
 
     CloseWindow();
