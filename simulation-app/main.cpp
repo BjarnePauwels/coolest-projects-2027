@@ -155,19 +155,17 @@ int main() {
                     update_axis(a,b);
                 }
             }
-            ImGui::End();
 
-            ImGui::Render();
-            ImGui::EndFrame();
-
-            rlImGuiEnd();
-
-            EndDrawing();
         }
+        ImGui::End();
 
-        if ()
+        ImGui::Render();
+        ImGui::EndFrame();
+
+        rlImGuiEnd();
+
+        EndDrawing();
     }
-
     rlImGuiShutdown();
 
     CloseWindow();
