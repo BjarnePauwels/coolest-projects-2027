@@ -97,7 +97,15 @@ int main() {
         const auto focalPoint2Pos = Vector2(center.x - _c, center.y);
         DrawCircleV(focalPoint2Pos, 2, RAYWHITE);
 
-        
+        // line_indecation
+        DrawLineV(center, focalPoint1Pos, GRAY);
+        DrawText("c", static_cast<int>(focalPoint1Pos.x - _c/2), static_cast<int>(focalPoint1Pos.y - 10), 5, GRAY);
+
+        DrawLineV(Vector2(center.x, center.y + 5), Vector2(center.x + a, center.y + 5), GRAY);
+        DrawText("a", static_cast<int>(center.x + a/2), static_cast<int>(center.y + 5), 5, GRAY);
+
+        DrawLineV(center, Vector2(center.x, center.y - b), GRAY);
+        DrawText("b", static_cast<int>(center.x - 8), static_cast<int>(center.y - b/2), 5, GRAY);
 
         //Earth.draw();
         //Sun.draw();
@@ -156,7 +164,10 @@ int main() {
 
             EndDrawing();
         }
+
+        if ()
     }
+
     rlImGuiShutdown();
 
     CloseWindow();
