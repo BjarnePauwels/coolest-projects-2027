@@ -4,6 +4,8 @@
 #include "imgui/headers/imgui.h"
 #include "imgui/headers/rlImGui.h"
 
+bool CustomToggle(const char* label, bool* v, const char* label2, bool onoff = true);
+
 auto screensize = Vector2(1280, 720);
 auto center = Vector2(screensize.x/2, screensize.y/2);
 
@@ -73,6 +75,9 @@ float b_max = screensize.y/2;
 
 bool show_explanation = false;
 bool visualize_2 = false;
+int amount_of_slices = 1;
+float angle_increment;
+bool fc1 = true;
 
 void update_axis(const float _a, const float _b) {
     semi_mayor_axis = _a;
@@ -110,9 +115,24 @@ int main() {
         DrawLineV(center, Vector2(center.x, center.y - b), GRAY);
         DrawText("b", static_cast<int>(center.x - 8), static_cast<int>(center.y - b/2), 5, GRAY);
 
+        DrawText("F", focalPoint1Pos.x - 4, focalPoint1Pos.y + 7, 7, GRAY); DrawText("1", focalPoint1Pos.x + 2.0f, focalPoint1Pos.y + 9, 5, GRAY);
+        DrawText("F", focalPoint2Pos.x - 5, focalPoint2Pos.y + 7, 7, GRAY); DrawText("2", focalPoint2Pos.x + 1.0f, focalPoint2Pos.y + 9, 5, GRAY);
+
         //visualization of kepler's 2nd law
         if (visualize_2) {
-            
+            angle_increment = 360.0f / static_cast<float>(amount_of_slices);
+            for (int i = 0; i < amount_of_slices; i++) {
+                const float length = a;
+                const float angle = angle_increment * i;
+                const float angle_r = angle * PI/180;
+
+                const float length_x = cos(angle_r) * length;
+                const float length_y = sin(angle_r) * length;
+                const auto end = Vector2(center.x + length_x, center.y + length_y);
+
+                DrawLineV(fc1?focalPoint1Pos:focalPoint2Pos, end, BLUE);
+            }
+
         }
 
         //Earth.draw();
@@ -167,7 +187,7 @@ int main() {
         }
         ImGui::End();
 
-        if (ImGui::Begin("Kepler's laws", nullptr)) {
+        if (ImGui::Begin("Kepler's laws", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
             ImGui::Text("Kepler's laws of planetary motion");
             ImGui::Checkbox("show explanation", &show_explanation);
 
@@ -177,7 +197,11 @@ int main() {
             ImGui::SeparatorText("2nd law");
             if (show_explanation) ImGui::Text("A line segment joining a planet and the Sun sweeps out equal areas during equal intervals of time.");
             ImGui::Checkbox("visualize", &visualize_2);
-
+            if (visualize_2) {
+                ImGui::SliderInt("amount of slices", &amount_of_slices, 1, 50);
+                ImGui::Text("angle increment = %f", angle_increment);
+                CustomToggle("F1", &fc1, "F2", false);
+            }
             ImGui::SeparatorText("3rd law");
             if (show_explanation) ImGui::Text("The square of a planet's orbital period is proportional to the cube of the length of the semi-major axis of its orbit.");
             ImGui::Text("T² ∞ a³");
@@ -197,4 +221,42 @@ int main() {
 
     CloseWindow();
     return 0;
+}
+
+bool CustomToggle(const char* label, bool* v, const char* label2, bool onoff)
+{
+    ImGui::PushID(label);
+    ImGui::Text(label);
+
+    ImGui::SameLine();
+    ImVec2 p = ImGui::GetCursorScreenPos();
+    float height = ImGui::GetFrameHeight();
+    float width = height * 1.55f; // Adjust the width to look similar to the switch in the image
+
+    // Colors
+    ImU32 color_bg_on = ImGui::GetColorU32(ImVec4(61.0f/255.0f, 133.0f/255.0f, 224.0f/255.0f, 1.0f));  // Green when ON
+    ImU32 color_bg_off = ImGui::GetColorU32(ImVec4(35.0f/255.0f, 68.0f/255.0f, 108.0f/255.0f, 1.0f)); // Red when OFF
+    ImU32 color_knob = ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f));   // White knob
+
+    ImGui::InvisibleButton(label, ImVec2(width, height));
+    bool clicked = ImGui::IsItemClicked();
+    if (clicked)
+        *v = !(*v); // Toggle state
+
+    // Background
+    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+    draw_list->AddRectFilled(p, ImVec2(p.x + width, p.y + height - 2.0f), onoff? *v ? color_bg_on : color_bg_off : color_bg_on, height * 0.5f);
+
+    // Knob position
+    float knob_radius = height * 0.3f;
+    ImVec2 knob_pos = *v ? ImVec2(p.x + width - height * 0.45f, p.y + height * 0.45f) : ImVec2(p.x + height * 0.45f, p.y + height * 0.45f);
+
+    draw_list->AddCircleFilled(knob_pos, knob_radius, color_knob);
+
+    ImGui::PopID();
+
+    ImGui::SameLine();
+    ImGui::Text(label2);
+
+    return clicked;
 }
