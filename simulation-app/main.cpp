@@ -1,8 +1,8 @@
 #include <iostream>
 #include "Include/raylib/raylib.h"
 #include "Include/raylib/raymath.h"
-#include "imgui/headers/imgui.h"
-#include "imgui/headers/rlImGui.h"
+#include "Include/imgui/headers/imgui.h"
+#include "Include/imgui/headers/rlImGui.h"
 
 bool CustomToggle(const char* label, bool* v, const char* label2, bool onoff = true);
 
@@ -122,15 +122,13 @@ int main() {
         if (visualize_2) {
             angle_increment = 360.0f / static_cast<float>(amount_of_slices);
             for (int i = 0; i < amount_of_slices; i++) {
-                const float length = a;
-                const float angle = angle_increment * i;
-                const float angle_r = angle * PI/180;
+                float increment = angle_increment * i;
 
-                const float length_x = cos(angle_r) * length;
-                const float length_y = sin(angle_r) * length;
-                const auto end = Vector2(center.x + length_x, center.y + length_y);
+                auto end = Vector2(center.x + cosf(DEG2RAD*(angle_increment+increment))*a, center.y + sinf(DEG2RAD*(angle_increment+increment))*b);
+                auto end2 = Vector2(center.x + cosf(DEG2RAD*increment)*a, center.y + sinf(DEG2RAD*increment)*b);
 
                 DrawLineV(fc1?focalPoint1Pos:focalPoint2Pos, end, BLUE);
+                DrawLineV(fc1?focalPoint1Pos:focalPoint2Pos, end2, BLUE);
             }
 
         }
