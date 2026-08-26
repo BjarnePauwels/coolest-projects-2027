@@ -94,10 +94,10 @@ int main() {
         BeginDrawing();
         ClearBackground(BLACK);
 
-        float V = semi_minor_axis;
-        float H = semi_mayor_axis;
+        float Basis = semi_minor_axis;
+        float Height = semi_mayor_axis;
 
-        DrawEllipseLines(static_cast<int>(center.x), static_cast<int>(center.y), H, V, RAYWHITE);
+        DrawEllipseLines(static_cast<int>(center.x), static_cast<int>(center.y), Height, Basis, RAYWHITE);
 
         float _c = calculate_c(a, 0.0f, b);
         const auto focalPoint1Pos = Vector2(center.x + _c, center.y);
@@ -120,16 +120,51 @@ int main() {
 
         //visualization of kepler's 2nd law
         if (visualize_2) {
-            angle_increment = 360.0f / static_cast<float>(amount_of_slices);
-            for (int i = 0; i < amount_of_slices; i++) {
-                float increment = angle_increment * i;
+            float A_ell = a * b * PI;
+            float A_slice = A_ell / static_cast<float>(20);
+            Vector2 focalPoint = fc1?focalPoint1Pos:focalPoint2Pos;
 
-                auto end = Vector2(center.x + cosf(DEG2RAD*(angle_increment+increment))*a, center.y + sinf(DEG2RAD*(angle_increment+increment))*b);
-                auto end2 = Vector2(center.x + cosf(DEG2RAD*increment)*a, center.y + sinf(DEG2RAD*increment)*b);
+            auto point1 = focalPoint;
+            auto point2 = Vector2(center.x + a, center.y);
+            // 2*A_slice / a = b
+            float length = 2*A_slice / Vector2Distance(point1, point2);
+            auto point30 = Vector2Normalize(Vector2Rotate(Vector2Subtract(focalPoint,point2),  DEG2RAD*amount_of_slices )); //Vector2Add(, focalPoint);
+            auto point31 = Vector2(point30.x*length, point30.y*length);
+            auto point3 = Vector2Add(point31, point1);
 
-                DrawLineV(fc1?focalPoint1Pos:focalPoint2Pos, end, BLUE);
-                DrawLineV(fc1?focalPoint1Pos:focalPoint2Pos, end2, BLUE);
-            }
+            DrawTriangleLines(point1, point2, point3, BLUE);
+            const char* text = TextFormat("%f", length);// * Vector2Distance(point1, point2) /2);
+            DrawText(text, point2.x, point2.y, 20, WHITE);
+
+            // auto pre_V = Vector2(0,0);
+            //
+            // angle_increment = 360.0f / static_cast<float>(amount_of_slices);
+            // float increment = 0;
+            // for (int i = 0; i < amount_of_slices; i++) {
+            //     if (i != 0) {
+            //         // B*H /2 = A_slice
+            //         const float B = Vector2Distance(focalPoint, pre_V);
+            //
+            //         auto rot_pV = Vector2(B, 0);
+            //
+            //         float H = A_slice * 2 / B;
+            //         auto x = static_cast<float>(sqrt(abs((1- pow(H, 2)/pow(b,2))*pow(a,2))));
+            //
+            //         auto rot_V = Vector2(x, H);
+            //
+            //         float small_increment = atanf(H/x);
+            //         auto V = Vector2Rotate(rot_V, small_increment);
+            //
+            //         pre_V = V;
+            //         DrawLineV(focalPoint, V, BLUE);
+            //
+            //     }
+            //     else {
+            //         auto V = Vector2(center.x + a, center.y);
+            //         pre_V = V;
+            //         DrawLineV(focalPoint, V, BLUE);
+            //     }
+            // }
 
         }
 
@@ -196,7 +231,7 @@ int main() {
             if (show_explanation) ImGui::Text("A line segment joining a planet and the Sun sweeps out equal areas during equal intervals of time.");
             ImGui::Checkbox("visualize", &visualize_2);
             if (visualize_2) {
-                ImGui::SliderInt("amount of slices", &amount_of_slices, 1, 50);
+                ImGui::SliderInt("amount of slices", &amount_of_slices, 1, 180);
                 ImGui::Text("angle increment = %f", angle_increment);
                 CustomToggle("F1", &fc1, "F2", false);
             }
